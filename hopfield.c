@@ -7,7 +7,7 @@
 gsl_rng *tau;
 
 void captarImagen(int spines[],int imagen[], int n);
-void calculoPesos(int imagen[], int n, double a, double w[][NUM]);
+void calculoPesos(int imagen[], int n, double *a, double w[][NUM]);
 void montecarlo(int spines[], int n, double w[][NUM]);
 
 int main(){
@@ -28,7 +28,7 @@ int main(){
     n = NUM;
     
     captarImagen(spines, imagen, n);
-    calculoPesos(imagen,n,a,w);
+    calculoPesos(imagen,n,&a,w);
     
     for(;;) montecarlo(spines,n,w);
     return 0;
@@ -48,19 +48,27 @@ void captarImagen(int spines[],int imagen[], int n){
     }*/
 }
 
-void calculoPesos(int imagen[], int n, double a, double w[][NUM]){
+void calculoPesos(int imagen[], int n, double *a, double w[][NUM]){
     //Calculo de a
-    a = 0;
-    for(int i=0;i<n;i++) a+=imagen[i];
-    a = a/(1.*n);
+    *a = 0;
+    for(int i=0;i<n;i++) *a+=imagen[i];
+    *a = *a/(1.*n);
     
+    //Calculo de w
     for(int i=0;i<n;i++){
         for(int j=0; j<n;j++){
             if(i==j){
                    w[i][i] = 0;
-            }else w[i][j] = (imagen[i]-a)*(imagen[j]-a)/(1.*a*(1-a)*n); 
+            }else w[i][j] = (imagen[i]-*a)*(imagen[j]-*a)/(1.**a*(1-*a)*n); 
         }
     }
+    
+    /*for(int i=0;i<n;i++){
+        for(int j=0;j<n;j++){
+            printf("%i\t",w[i][i]);
+        }
+        printf("\n");
+    }*/
     
 }
 
@@ -75,7 +83,7 @@ void montecarlo(int spines[], int n, double w[][NUM]){
     for(j=0;j<n;j++)
         aux += w[i][j]*(1-spines[j]); 
     
-    en = aux*(spines[i]-1/2.);
-    expo = exp(-en/0.1);
-    printf("%e.10\n",en);
+    en = aux*(1-spines[i])/2.;
+    expo = exp(-1*en/0.1);
+    printf("%lf\n",expo);
 }
