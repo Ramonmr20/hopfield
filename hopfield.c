@@ -10,6 +10,7 @@ void captarImagen(int imagen[], int n);
 void inicializarSpines(int spines[], int n);
 void calculoPesos(int imagen[], int n, double *a, double w[][NUM]);
 void montecarlo(int spines[], int n, double w[][NUM]);
+double min(double a, double b);
 
 int main(){
     
@@ -75,16 +76,22 @@ void calculoPesos(int imagen[], int n, double *a, double w[][NUM]){
 void montecarlo(int spines[], int n, double w[][NUM]){
     extern gsl_rng *tau;
     int i, j;
-    double en, aux,expo;
+    double en, aux, expo, prob;
     
     i = gsl_rng_uniform_int(tau,NUM);
+    prob = gsl_rng_uniform(tau);
     
     aux = 0;
     for(j=0;j<n;j++)
         aux += w[i][j]*(1-spines[j]); 
     
-    en = aux*(1-spines[i])/2.;
+    en = aux*(1-2*spines[i])/2.;
     expo = exp(-1*en/0.1);
     
-    printf("%lf\n",expo);
+    if(prob<min(1,expo)) spines[i] = (1-spines[i]);
+}
+
+double min(double a, double b){
+    if(a<b){ return a;
+    }else return b;
 }
