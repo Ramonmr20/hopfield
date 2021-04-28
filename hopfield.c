@@ -40,7 +40,6 @@ int main(){
 void captarImagen(int imagen[], int n){
     for(int i = 0;i<n/2;i++) imagen[i]=1;
     for(int i=n/2;i<n;i++) imagen[i]=0;
-    
 }
 
 void inicializarSpines(int spines[], int n){
@@ -49,7 +48,7 @@ void inicializarSpines(int spines[], int n){
     
     for(int i=0;i<n;i++){
         al = gsl_rng_uniform(tau);
-        if(al<5){ spines[i] = 0;
+        if(al<0.5){ spines[i] = 0;
         }else spines[i] = 1;
     }
 }
@@ -69,7 +68,7 @@ void calculoPesos(int imagen[], int n, double *a, double w[][NUM]){
             }else w[i][j] = (imagen[i]-aa)*(imagen[j]-aa)/(1.*aa*(1-aa)*n);
         }
     }
-    
+
     *a = aa;
 }
 
