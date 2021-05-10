@@ -2,7 +2,7 @@
 #include <time.h>
 #include <math.h>
 #include "gsl_rng.h"
-#define NUM 1000
+#define NUM 10000
 
 gsl_rng *tau;
 
@@ -26,21 +26,39 @@ int main(){
     int n;
     double a;
     double w[NUM][NUM];//Pesos
+    FILE *f1;
     
+    f1 = fopen("hop.txt","w");
     n = NUM;
     
     captarImagen(imagen, n);
     inicializarSpines(spines, n);
     calculoPesos(imagen,n,&a,w);
     
-    for(;;) montecarlo(spines,n,w);
+    for(int i=0;i<200;i++){
+        for(int j=0;j<n*n;j++) //montecarlo(spines,n,w);
+        for(int j=0;j<n;j++) fprintf(f1,"%i\t",spines[j]);
+        fprintf(f1,"\n");
+    }
+    fclose(f1);
     return 0;
     
 }
 
 void captarImagen(int imagen[], int n){
-    for(int i = 0;i<n/2;i++) imagen[i]=1;
-    for(int i=n/2;i<n;i++) imagen[i]=0;
+    FILE *f2;
+    f2 = fopen("imagen.txt","w");
+    
+    for(int i = 0;i<n;i++){ 
+        if(i%5==0){
+            imagen[i]=1;
+        }else imagen[i] =0;
+
+        fprintf(f2,"%i\t",imagen[i]);
+    }
+    
+    fprintf(f2,"\n");
+    fclose(f2);
 }
 
 void inicializarSpines(int spines[], int n){
@@ -55,6 +73,7 @@ void inicializarSpines(int spines[], int n){
 }
 
 void calculoPesos(int imagen[], int n, double *a, double w[][NUM]){
+    
     //Calculo de a
     double aa;
     aa = 0;
@@ -65,12 +84,21 @@ void calculoPesos(int imagen[], int n, double *a, double w[][NUM]){
     //Calculo de w
     for(int i=0;i<n;i++){
         for(int j=0;j<n;j++){
-            if(i==j){ w[i][j] =0;
-            }else w[i][j] = (imagen[i]-aa)*(imagen[j]-aa)/(1.*aa*(1-aa)*n);
+            //if(i==j){ w[i][j] =0;
+            //}else w[i][j] = (imagen[i]-aa)*(imagen[j]-aa)/(1.*aa*(1-aa)*n);
+            w[i][j] = 0;
+            //printf("%lf\n",w[i][j]);
         }
     }
 
     *a = aa;
+    /* *a = 0;
+    for(int i=0;i<n;i++){
+        for(int j=0;j<n;j++){
+            w[i][j] = 0;
+        }
+    }*/
+    
 }
 
 void montecarlo(int spines[], int n, double w[][NUM]){
