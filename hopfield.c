@@ -9,6 +9,7 @@
 gsl_rng *tau; //Variable para los num aleatorios
 
 void iniImagen(int imagen[][NIM]);
+void iniSpinesAl(int spines[]);
 
 int main(){
     
@@ -20,15 +21,17 @@ int main(){
     gsl_rng_set(tau,semilla);
     
     //Declaración variables
-    int imagen[NUM][NIM], spines[NUM][NIM];
+    int imagen[NUM][NIM], spines[NUM];
+    double w[NUM][NUM];
     FILE *f1;
     
-    f1 = fopen("imagen.txt","w");
+    //f1 = fopen("imagen.txt","w");
     
     iniImagen(imagen);
-    for(int i=0;i<NUM;i++) fprintf(f1,"%i\t",imagen[i][0]);
-    fclose(f1);
+    iniSpinesAl(spines);
     
+    //for(int i=0;i<NUM;i++) fprintf(f1,"%i\t",spines[i]);
+    //fclose(f1);
 }
 
 void iniImagen(int imagen[][NIM]){
@@ -36,5 +39,15 @@ void iniImagen(int imagen[][NIM]){
         if(i%2==0){
             imagen[i][0] = 0;
         }else imagen[i][0] = 1;
+    }
+}
+
+void iniSpinesAl(int spines[]){
+    extern gsl_rng *tau;
+    
+    for(int i=0;i<NUM;i++){
+        if(gsl_rng_uniform(tau)<=0.5){
+            spines[i] = 0;
+        }else spines[i] = 1;
     }
 }
