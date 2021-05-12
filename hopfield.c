@@ -11,6 +11,7 @@ gsl_rng *tau; //Variable para los num aleatorios
 void iniImagen(int *imagen[]);
 void iniSpinesAl(int *spines);
 double calculoW(int *imagen[], double *w[]);
+double difEnergia(int *spines, double *w[], int i);
 
 int main(){
     
@@ -39,13 +40,13 @@ int main(){
     
     f1 = fopen("imagen.txt","w");
     
-    iniImagen(imagen);
-    iniSpinesAl(spines);
+    iniImagen(imagen); //Inicializar imagen en memoria
+    iniSpinesAl(spines); //Dar configuración inicial spines
     
-    a = calculoW(imagen, w);
+    a = calculoW(imagen, w); //Inicializar a y w[][]
     
-    //for(i=0;i<NUM;i++) fprintf(f1,"%i\t",imagen[0][i]);
-    for(i=0;i<NUM;i++) for(j=0;j<NUM;j++) printf("%i,j::%lf\n",i,j,w[i][j]);
+    for(i=0;i<NUM;i++) fprintf(f1,"%i\t",imagen[0][i]);
+    for(i=0;i<NUM;i++) for(j=0;j<NUM;j++) printf("%i,j::%lf\n",i,difEnergia(spines, w, i));
     
     fclose(f1);
 }
@@ -94,4 +95,15 @@ double calculoW(int *imagen[], double *w[]){
     }
     
     return a;
+}
+
+double difEnergia(int *spines, double *w[], int i){
+    double en, aux;
+    int j;
+    
+    for(j=0;j<NUM;j++) aux += w[i][j]*(1-spines[j]);
+    
+    en = (1-spines[i])*aux/2.;
+    
+    return en;
 }
