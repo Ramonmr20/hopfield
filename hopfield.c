@@ -4,7 +4,7 @@
 #include "gsl_rng.h"
 
 #define NUM 10000 //Número de neuronas
-#define NIM 1 //Número de imágenes recordadas
+#define NIM 2 //Número de imágenes recordadas
 #define T 0.01
 
 gsl_rng *tau; //Variable para los num aleatorios
@@ -53,7 +53,7 @@ int main(){
     printf("%lf\n",a);
     
     //Output config inicial y spines en 0
-    for(i=0;i<NUM;i++) fprintf(f1,"%i\t",imagen[0][i]);
+    for(i=0;i<NUM;i++) fprintf(f1,"%i\t",imagen[1][i]);
     for(j=0;j<NUM;j++) fprintf(f2,"%i\t",spines[j]);
     fprintf(f2,"\n");
     
@@ -78,6 +78,12 @@ void iniImagen(int *imagen[]){
     f1 = fopen("1.txt","r");
     
     for(int i=0;i<NUM;i++) fscanf(f1,"%i",&imagen[0][i]);
+    
+    fclose(f1);
+    
+    f1 = fopen("8.txt","r");
+    
+    for(int i=0;i<NUM;i++) fscanf(f1,"%i",&imagen[1][i]);
     
     fclose(f1);
 }
