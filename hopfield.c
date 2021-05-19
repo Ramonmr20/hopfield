@@ -5,7 +5,7 @@
 
 #define NUM 10000 //Número de neuronas
 #define NIM 1 //Número de imágenes recordadas
-#define T 0.05
+#define T 0.01
 
 gsl_rng *tau; //Variable para los num aleatorios
 
@@ -73,21 +73,23 @@ int main(){
 }
 
 void iniImagen(int *imagen[]){
-    for(int i=0;i<NUM;i++){
-        if(i%2==0){
-            imagen[0][i] = 0;
-        }else imagen[0][i] = 1;
-    }
+    FILE *f1;
+    
+    f1 = fopen("1.txt","r");
+    
+    for(int i=0;i<NUM;i++) fscanf(f1,"%i",&imagen[0][i]);
+    
+    fclose(f1);
 }
 
 void iniSpinesAl(int *spines){
-    extern gsl_rng *tau;
+    FILE *f1;
     
-    for(int i=0;i<NUM;i++){
-        if(gsl_rng_uniform(tau)<=0.5){
-            spines[i] = 0;
-        }else spines[i] = 1;
-    }
+    f1 = fopen(".imtemp.txt","r");
+    
+    for(int i=0;i<NUM;i++) fscanf(f1,"%i",&spines[i]);
+    
+    fclose(f1);
 }
 
 double calculoW(int *imagen[], double *w[]){
