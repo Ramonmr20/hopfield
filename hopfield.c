@@ -5,13 +5,16 @@
 
 #define NUM 10000 //Número de neuronas
 #define NIM 1 //Número de imágenes recordadas
+#define T 0.05
 
 gsl_rng *tau; //Variable para los num aleatorios
 
-void iniImagen(int *imagen[]);
+void iniImagen(int *imagen[]); 
 void iniSpinesAl(int *spines);
 double calculoW(int *imagen[], double *w[]);
 double difEnergia(int *spines, double *w[], int i);
+void paso(int *spines, double *w[]);
+double min(double a, double b);
 
 int main(){
     
@@ -25,7 +28,7 @@ int main(){
     //Declaración variables con memoria dinámica
     int *imagen[NIM], *spines;
     double *w[NUM];
-    int i,j; //Variables tonta
+    int i,j; //Variables tontas
     
     for(i=0;i<NIM;i++) imagen[i] = (int*)malloc(NUM*sizeof(int)); //En imagen [a][b] a es la imagen y b la neuronas
     for(i=0;i<NUM;i++){
@@ -36,19 +39,37 @@ int main(){
     
     //Declaración otras variables
     double a;
-    FILE *f1;
+    FILE *f1, *f2, *f3;
     
     f1 = fopen("imagen.txt","w");
+    f2 = fopen("sistema.txt","w");
+    
+    printf("kpasa\n");
     
     iniImagen(imagen); //Inicializar imagen en memoria
     iniSpinesAl(spines); //Dar configuración inicial spines
     
     a = calculoW(imagen, w); //Inicializar a y w[][]
+    printf("%lf\n",a);
     
+    //Output config inicial y spines en 0
     for(i=0;i<NUM;i++) fprintf(f1,"%i\t",imagen[0][i]);
-    for(i=0;i<NUM;i++) for(j=0;j<NUM;j++) printf("%i,j::%lf\n",i,difEnergia(spines, w, i));
+    for(j=0;j<NUM;j++) fprintf(f2,"%i\t",spines[j]);
+    fprintf(f2,"\n");
+    
+    for(i=0;i<100;i++){ 
+        
+        //Paso montecarlo
+        for(j=0;j<NUM;j++) paso(spines, w);
+        
+        //Output resultado
+        for(j=0;j<NUM;j++) fprintf(f2,"%i\t",spines[j]);
+        fprintf(f2,"\n");
+        printf("%i\n",i);
+    }
     
     fclose(f1);
+    fclose(f2);
 }
 
 void iniImagen(int *imagen[]){
@@ -101,9 +122,31 @@ double difEnergia(int *spines, double *w[], int i){
     double en, aux;
     int j;
     
+    aux = 0;
     for(j=0;j<NUM;j++) aux += w[i][j]*(1-spines[j]);
     
-    en = (1-spines[i])*aux/2.;
+    en = (1-2*spines[i])*aux/2.;
     
     return en;
+}
+
+void paso(int *spines, double *w[]){
+    extern gsl_rng *tau;
+    double en, p, xi;
+    int i;
+    
+    i = gsl_rng_uniform_int(tau,NUM);
+    
+    en = difEnergia(spines, w, i);
+    p = min(1,exp(-en/T));
+    //printf("%lf\n",p);
+    
+    xi = gsl_rng_uniform(tau);
+    
+    if(xi<p) spines[i] = 1 - spines[i];
+}
+
+double min(double a, double b){
+    if(a<b){ return a;
+    }else return b;
 }
