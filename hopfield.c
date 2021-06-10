@@ -5,13 +5,13 @@
 
 #define NUM 10000 //Número de neuronas
 #define NIM 2 //Número de imágenes recordadas
-#define T 0.01
+#define T 0.0001
 
 gsl_rng *tau; //Variable para los num aleatorios
 
 void iniImagen(int *imagen[]); 
 void iniSpinesAl(int *spines);
-double calculoW(int *imagen[], double *w[]);
+void calculoW(int *imagen[], double *w[], double a[]);
 double difEnergia(int *spines, double *w[], int i);
 void paso(int *spines, double *w[]);
 double min(double a, double b);
@@ -38,18 +38,16 @@ int main(){
     }
     
     //Declaración otras variables
-    double a;
+    double a[NIM];
     FILE *f1, *f2, *f3;
     
     f1 = fopen("imagen.txt","w");
     f2 = fopen("sistema.txt","w");
     
-    printf("kpasa\n");
-    
     iniImagen(imagen); //Inicializar imagen en memoria
     iniSpinesAl(spines); //Dar configuración inicial spines
     
-    a = calculoW(imagen, w); //Inicializar a y w[][]
+    calculoW(imagen, w, a); //Inicializar a y w[][]
     printf("%lf\n",a);
     
     //Output config inicial y spines en 0
@@ -98,17 +96,18 @@ void iniSpinesAl(int *spines){
     fclose(f1);
 }
 
-double calculoW(int *imagen[], double *w[]){
-    double a, aux;
+void calculoW(int *imagen[], double *w[], double a[]){
+    double aux;
     
     //Calculo de a
-    a = 0;
-    
-    for(int i=0; i<NIM; i++){
-        for(int j=0; j<NUM;j++) a += imagen[i][j];
+    for(int i=0;i<NIM;i++){
+        a[i] = 0;
+        for(int j=0;j<NUM;j++){
+            a[i] += imagen[i][j];
+        }
+        a[i] = a[i]/(1.*NUM);
     }
     
-    a = a/(1.*NUM*NIM);
     
     //Calculo pesos
     for(int i=0; i<NUM; i++){
@@ -116,14 +115,12 @@ double calculoW(int *imagen[], double *w[]){
             if(i==j){ w[i][i] = 0;
             }else{
                 aux = 0;
-                for(int k=0; k<NIM; k++) aux += (imagen[k][i]-a)*(imagen[k][j]-a);
+                for(int k=0; k<NIM; k++) aux += (imagen[k][i]-a[k])*(imagen[k][j]-a[k]);
                 
-                w[i][j] = aux/(1.*a*(1-a)*NUM);
+                w[i][j] = aux/(1.*NUM);
             }
         }
     }
-    
-    return a;
 }
 
 double difEnergia(int *spines, double *w[], int i){
@@ -131,9 +128,9 @@ double difEnergia(int *spines, double *w[], int i){
     int j;
     
     aux = 0;
-    for(j=0;j<NUM;j++) aux += w[i][j]*(1-spines[j]);
+    for(j=0;j<NUM;j++) aux += w[i][j]*(1/2.-spines[j]);
     
-    en = (1-2*spines[i])*aux/2.;
+    en = (1-2*spines[i])*aux;
     
     return en;
 }
