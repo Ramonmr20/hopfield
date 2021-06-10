@@ -15,6 +15,7 @@ void calculoW(int *imagen[], double *w[], double a[]);
 double difEnergia(int *spines, double *w[], int i);
 void paso(int *spines, double *w[]);
 double min(double a, double b);
+double solapamiento(int *spines, int *imagen[], double a[], int mu);
 
 int main(){
     
@@ -154,4 +155,17 @@ void paso(int *spines, double *w[]){
 double min(double a, double b){
     if(a<b){ return a;
     }else return b;
+}
+
+double solapamiento(int *spines, int *imagen[], double a[], int mu){
+    double m, sum;
+    
+    sum = 0;
+    for(int i=0; i<NUM; i++){
+        sum += (imagen[mu][i]-a[mu])*(spines[i]-a[mu]);
+    }
+    
+    m = sum/(1.*NUM*a[mu]*(1-a[mu]));
+    
+    return m;
 }
