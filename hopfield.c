@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <string.h>
 #include "gsl_rng.h"
 
 #define NUM 10000 //Número de neuronas
@@ -21,7 +23,7 @@ int main(){
     
     //Inicializar num aleatorios
     extern gsl_rng *tau;
-    int semilla = 3;//time(NULL);
+    int semilla = time(NULL);
     
     tau = gsl_rng_alloc(gsl_rng_taus);
     gsl_rng_set(tau,semilla);
@@ -29,7 +31,7 @@ int main(){
     //Declaración variables con memoria dinámica
     int *imagen[NIM], *spines;
     double *w[NUM];
-    int i,j; //Variables tontas
+    int i,j,k; //Variables tontas
     
     for(i=0;i<NIM;i++) imagen[i] = (int*)malloc(NUM*sizeof(int)); //En imagen [a][b] a es la imagen y b la neuronas
     for(i=0;i<NUM;i++){
@@ -44,15 +46,19 @@ int main(){
     
     f1 = fopen("imagen.txt","w");
     f2 = fopen("sistema.txt","w");
+    f3 = fopen("solapamiento.txt", "w");
     
+    
+    //Cargar configuariones iniciales
     iniImagen(imagen); //Inicializar imagen en memoria
+    system("python read.py");
     iniSpinesAl(spines); //Dar configuración inicial spines
     
+    //Calculo de W
     calculoW(imagen, w, a); //Inicializar a y w[][]
-    printf("%lf\n",a);
     
     //Output config inicial y spines en 0
-    for(i=0;i<NUM;i++) fprintf(f1,"%i\t",imagen[1][i]);
+    for(i=0;i<NUM;i++) fprintf(f1,"%i\t",imagen[0][i]);
     for(j=0;j<NUM;j++) fprintf(f2,"%i\t",spines[j]);
     fprintf(f2,"\n");
     
@@ -65,31 +71,85 @@ int main(){
         for(j=0;j<NUM;j++) fprintf(f2,"%i\t",spines[j]);
         fprintf(f2,"\n");
         printf("%i\n",i);
+        
+        fprintf(f3, "%i\t", i);
+        for(k=0;k<NIM;k++) fprintf(f3, "%lf\t",solapamiento(spines,imagen,a,k));
+        fprintf(f3, "\n");
     }
     
     fclose(f1);
     fclose(f2);
+    fclose(f3);
+    
+    system("python plot.py");
+    
+    return 0;
 }
 
 void iniImagen(int *imagen[]){
+    //ALEATORIO
+    /*extern gsl_rng *tau;
+    double a;
+    
+    for(int k=0; k<NIM; k++){
+        for(int i=0; i<NUM; i++){
+            a = gsl_rng_uniform(tau);
+        
+            if(a>0.5){ imagen[k][i] = 0;
+            }else{imagen[k][i] = 1;}
+        }
+    }*/
+    
+    //LEE IMAGENES
     FILE *f1;
     
-    f1 = fopen("1.txt","r");
+    char a[10], b[10], cmd[50];
     
-    for(int i=0;i<NUM;i++) fscanf(f1,"%i",&imagen[0][i]);
+    strcpy(a," .txt");
+    strcpy(b," p.png ");
     
-    fclose(f1);
     
-    f1 = fopen("8.txt","r");
+    for(int j=0; j<NIM; j++){
+        
+        strcpy(cmd, "python read.py ");
+        
+        a[0] = j+49;
+        b[0] = j+49;
+        
+        strcat(cmd,b);
+        strcat(cmd,a);
+        
+        printf("||%s||\n",cmd);
+        
+        system(cmd);
+        f1 = fopen(a,"r");
+        
+        for(int i=0;i<NUM;i++) fscanf(f1,"%i",&imagen[j][i]);
+        
+        fclose(f1);
+    }
     
-    for(int i=0;i<NUM;i++) fscanf(f1,"%i",&imagen[1][i]);
-    
-    fclose(f1);
 }
 
 void iniSpinesAl(int *spines){
+    //Aleatorio
+    
+    /*extern gsl_rng *tau;
+    double x;
+    
+    for(int i=0;i<NUM;i++){
+        x = gsl_rng_uniform(tau);
+        
+        if(x>0.5){ spines[i] = 0;
+        }else{ spines[i] = 1;
+        }
+    }
+    */
+    
+    //Leer Configuracion inicial
     FILE *f1;
     
+    system("python read.py input.png .imtemp.txt");
     f1 = fopen(".imtemp.txt","r");
     
     for(int i=0;i<NUM;i++) fscanf(f1,"%i",&spines[i]);
@@ -169,3 +229,4 @@ double solapamiento(int *spines, int *imagen[], double a[], int mu){
     
     return m;
 }
+

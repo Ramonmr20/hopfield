@@ -1,12 +1,13 @@
 import numpy as np
 import imageio
+import sys
 
-image = imageio.imread('blanco.png')
+image = imageio.imread(sys.argv[1])
 
 alto = len(image[:,0]) #Altura imagen
 ancho = len(image[0]) #Anchura imagen
 
-f = open('.imtemp.txt', 'w')
+f = open(sys.argv[2], 'w')
 
 for x in range(alto):
     for y in range(ancho):
